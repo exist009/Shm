@@ -9,11 +9,9 @@
 
 using namespace std::chrono;
 
-Shm::Shm(int option, const char *name, int mode, size_t buffer_size, size_t buffer_count) : _mode(mode), _buffer_size(buffer_size), _buffer_count(buffer_count)
+Shm::Shm(int option, const char *name, size_t buffer_size, size_t buffer_count) : _buffer_size(buffer_size), _buffer_count(buffer_count)
 {
 	this->_status = Status::s_error;
-
-	if (!(this->_mode & Mode::m_read || this->_mode & Mode::m_write)) return;
 
 	this->_name[0] = '/';
 	strncpy(&this->_name[1], name, max_name);
@@ -89,7 +87,7 @@ int Shm::create()
 
 int Shm::open()
 {
-	if ((this->file_d = shm_open(this->_name, (this->_mode & Mode::m_write ? O_RDWR : O_RDONLY), 0666)) == -1)
+	if ((this->file_d = shm_open(this->_name, O_RDWR, 0666)) == -1)
 	{
 		return -1;
 	}
@@ -116,7 +114,7 @@ int Shm::open()
 
 int Shm::memory_init(bool is_first)
 {
-	this->address = mmap(NULL, this->total_size, (this->_mode & Mode::m_write ? PROT_READ | PROT_WRITE : PROT_READ), MAP_SHARED, this->file_d, 0);
+	this->address = mmap(NULL, this->total_size, PROT_READ | PROT_WRITE, MAP_SHARED, this->file_d, 0);
 
 	::close(this->file_d);
 
@@ -216,12 +214,6 @@ int Shm::_write_start(size_t &current_buffer, char &write_mark)
 		return -1;
 	}
 
-	if (!(this->_mode & Mode::m_write))
-	{
-		this->_status = Status::s_error;
-		return -1;
-	}
-
 	if (!this->shm_exist_flag().load())
 	{
 		this->_status = Status::s_error | Status::s_not_exist;
@@ -282,12 +274,6 @@ unsigned Shm::_read(F read_functor, Read type, size_t &size)
 	auto start = this->chronometry_start();
 
 	this->_status = Status::s_ok;
-
-	if (!this->address || !(this->_mode & Mode::m_read))
-	{
-		this->_status = Status::s_error;
-		return this->index;
-	}
 
 	if (!this->shm_exist_flag().load())
 	{
@@ -401,7 +387,7 @@ size_t Shm::shm_offset(size_t level)
 {
 	size_t offset = 0;
 
-	switch(level)
+	switch (level)
 	{
 		case 7:
 			offset += this->_buffer_size * this->_buffer_count; // Data

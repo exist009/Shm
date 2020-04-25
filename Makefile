@@ -40,6 +40,6 @@ CP = cp -f
 MKDIR = mkdir -p
 
 all:
-	$(CXX) $(CXXFLAGS) $(WFLAGS) $(SOURCES) -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(WFLAGS) $(SOURCES) -o $(TARGET) $(LIBFLAGS)
 clean:
 	$(RM) *.so

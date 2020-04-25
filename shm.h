@@ -44,12 +44,6 @@ class Shm
 			o_create_or_open = 1 << 2,
 		};
 
-		enum Mode : int
-		{
-			m_read  = 1 << 0,
-			m_write = 1 << 1,
-		};
-
 		enum class Read { next, last };
 
 		static const size_t max_name = SHM_MAX_NAME;
@@ -61,14 +55,10 @@ class Shm
 		 * - только открытие
 		 * - создание или открытие
 		 * [input] name - Идентификатор (имя) области памяти
-		 * [input] mode - Режим доступа:
-		 * - чтение
-		 * - запись
-		 * - чтение и запись
 		 * [input] buffer_size - Размер буффера данных
 		 * [input] buffer_count - Количество буфферов данных
 		 */
-		Shm(int option, const char *name, int mode = Mode::m_read | Mode::m_write, size_t buffer_size = 0, size_t buffer_count = 0);
+		Shm(int option, const char *name, size_t buffer_size = 0, size_t buffer_count = 0);
 
 
 
@@ -205,7 +195,6 @@ class Shm
 		char *buffer = nullptr;
 
 		int _status = Status::s_error;
-		int _mode = Mode::m_read | Mode::m_write;
 
 		char _name[NAME_MAX];
 
