@@ -135,7 +135,7 @@ int Shm::memory_init(bool is_first)
 		this->shm_buffer_size() = this->_buffer_size;
 		this->shm_buffer_count() = this->_buffer_count;
 		this->shm_data_time(0) = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
-		this->shm_write_index().store(1);
+		this->shm_write_index().store(0);
 		this->shm_exist_flag().store(true);
 	}
 	else
